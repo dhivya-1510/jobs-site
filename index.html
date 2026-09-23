@@ -44,6 +44,13 @@ nav.mainnav a:hover{color:var(--purple)}
 .searchbar button:hover{background:var(--purple-deep)}
 @media(max-width:600px){.searchbar{flex-direction:column}.searchbar input#qTitle{border-right:none;border-bottom:1px solid var(--line)}}
 
+.locsuggest{position:absolute;top:calc(100% + 6px);background:#fff;border:1.5px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(76,29,149,.12);z-index:20;overflow:hidden;max-height:260px;overflow-y:auto}
+.locsuggest .opt{padding:11px 16px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;display:flex;gap:4px}
+.locsuggest .opt b{color:var(--purple-deep);font-weight:800}
+.locsuggest .opt .country{color:var(--ink-soft);font-weight:500}
+.locsuggest .opt:hover,.locsuggest .opt.active{background:var(--purple-light)}
+.locsuggest .opt+.opt{border-top:1px solid var(--line)}
+
 .filterrow{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 8px;align-items:center}
 .pillwrap{position:relative}
 .pillwrap select{appearance:none;-webkit-appearance:none;-moz-appearance:none;padding:10px 30px 10px 15px;border:1.5px solid var(--line);border-radius:22px;font-weight:700;font-size:13.5px;background:#fff;color:var(--ink);cursor:pointer;font-family:inherit}
@@ -71,7 +78,7 @@ nav.mainnav a:hover{color:var(--purple)}
 .job:last-child{border-bottom:none}
 .job.tailored{background:var(--purple-light)}
 .joblogo{width:44px;height:44px;border-radius:10px;background:var(--purple-light);color:var(--purple-deep);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0}
-.jobmain{flex:1;min-width:0}
+.jobmain{flex:1;min-width:0;overflow-wrap:anywhere}
 .jobmain h3{font-size:17px;font-weight:800}
 .jobmain .meta{color:var(--ink-soft);font-size:13.5px;margin-top:3px;font-weight:600}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
@@ -165,11 +172,13 @@ nav.mainnav a:hover{color:var(--purple)}
 <div class="wrap">
   <div class="hero">
     <p>A job board built for internationals moving to or living in Germany — search live postings, filter by type, experience level and distance from you, and get resume help tailored to the exact job you're applying for.</p>
-    <div class="searchbar">
-      <input id="qTitle" type="text" placeholder="Job title, keyword, or company">
-      <input id="qLoc" type="text" placeholder="Location (city)" list="cityList" autocomplete="off">
-      <datalist id="cityList"></datalist>
-      <button id="searchBtn">🔍 Search</button>
+    <div class="searchwrap" style="position:relative">
+      <div class="searchbar">
+        <input id="qTitle" type="text" placeholder="Job title, keyword, or company">
+        <input id="qLoc" type="text" placeholder="Location (German city)" autocomplete="off">
+        <button id="searchBtn">🔍 Search</button>
+      </div>
+      <div id="locSuggest" class="locsuggest" style="display:none"></div>
     </div>
     <div class="filterrow">
       <div class="pillwrap"><select id="fType"><option value="">Job type</option><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="contract">Contract / flexible</option><option value="internship">Internship</option></select></div>
@@ -179,6 +188,7 @@ nav.mainnav a:hover{color:var(--purple)}
       <button class="locpill" id="locBtn">📍 Use my location</button>
       <button class="togglepill" id="fVisa">Visa sponsorship</button>
       <button class="togglepill" id="fRemote">Remote-friendly</button>
+      <button class="togglepill" id="fNonTech">Non-tech (hospitality/warehouse/mini-jobs)</button>
       <button class="alertbtn" id="alertBtn">🔔 Create alert</button>
       <a class="morelink" id="moreLink">Show all ▾</a>
       <div class="pillwrap" id="sortWrap" style="display:none"><select id="fSort"><option value="new">Sort: Newest</option><option value="az">Sort: Company A–Z</option></select></div>
@@ -286,6 +296,12 @@ let userCoords = null;
 let typedLocCoords = null;
 const typeLabel = {full_time:"Full-time", part_time:"Part-time", contract:"Contract / flexible", internship:"Internship", temporary:"Temporary"};
 function tag(t,cls=""){return `<span class="tag ${cls}">${t}</span>`}
+// Escape any text pulled from the live API before it's dropped into innerHTML — an unescaped
+// "<" or "&" in a real job's title/company (which happens) otherwise gets parsed as markup and
+// corrupts the layout of that card and everything rendered after it.
+function esc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 // Built-in coordinates for major German cities — reliable & instant, no per-job geocoding calls
 const GERMAN_CITIES = [["Berlin",52.52,13.405],["Hamburg",53.551,9.993],["Munich",48.137,11.575],["München",48.137,11.575],["Cologne",50.937,6.96],["Köln",50.937,6.96],["Frankfurt am Main",50.11,8.682],["Stuttgart",48.775,9.182],["Düsseldorf",51.225,6.776],["Dortmund",51.514,7.466],["Essen",51.455,7.011],["Leipzig",51.34,12.375],["Bremen",53.079,8.802],["Dresden",51.05,13.737],["Hanover",52.375,9.732],["Hannover",52.375,9.732],["Nuremberg",49.453,11.077],["Nürnberg",49.453,11.077],["Duisburg",51.434,6.763],["Bochum",51.482,7.216],["Wuppertal",51.256,7.151],["Bielefeld",52.021,8.534],["Bonn",50.735,7.1],["Münster",51.962,7.626],["Karlsruhe",49.007,8.404],["Mannheim",49.489,8.466],["Augsburg",48.371,10.898],["Wiesbaden",50.083,8.24],["Mönchengladbach",51.185,6.442],["Gelsenkirchen",51.517,7.086],["Braunschweig",52.266,10.526],["Chemnitz",50.833,12.921],["Kiel",54.323,10.139],["Aachen",50.776,6.084],["Halle",51.482,11.969],["Magdeburg",52.131,11.64],["Freiburg im Breisgau",47.999,7.842],["Krefeld",51.334,6.559],["Lübeck",53.869,10.687],["Oberhausen",51.497,6.851],["Erfurt",50.985,11.033],["Mainz",49.993,8.247],["Rostock",54.092,12.099],["Kassel",51.313,9.492],["Hagen",51.359,7.473],["Saarbrücken",49.235,6.996],["Potsdam",52.4,13.058],["Ludwigshafen",49.482,8.446],["Oldenburg",53.143,8.214],["Leverkusen",51.03,6.99],["Osnabrück",52.279,8.047],["Solingen",51.171,7.084],["Heidelberg",49.399,8.672],["Darmstadt",49.873,8.651],["Würzburg",49.791,9.953],["Regensburg",49.019,12.097],["Ingolstadt",48.765,11.424],["Ulm",48.398,9.992],["Heilbronn",49.142,9.218],["Pforzheim",48.892,8.699],["Göttingen",51.534,9.935],["Offenbach",50.106,8.762],["Bottrop",51.524,6.929],["Trier",49.757,6.641],["Reutlingen",48.492,9.211],["Koblenz",50.354,7.594],["Bremerhaven",53.539,8.58],["Recklinghausen",51.614,7.198],["Jena",50.927,11.586],["Remscheid",51.178,7.19],["Erlangen",49.598,11.004],["Moers",51.451,6.626],["Siegen",50.875,8.024],["Hildesheim",52.15,9.951],["Salzgitter",52.157,10.335],["Cottbus",51.759,14.333],["Kaiserslautern",49.443,7.771],["Gera",50.879,12.083],["Schwerin",53.628,11.415],["Witten",51.443,7.34],["Flensburg",54.784,9.437],["Konstanz",47.66,9.176],["Neuss",51.198,6.688],["Gütersloh",51.907,8.394],["Hamm",51.68,7.821],["Göppingen",48.703,9.652],["Clausthal-Zellerfeld",51.806,10.336],["Goslar",51.907,10.43],["Paderborn",51.719,8.754],["Villingen-Schwenningen",48.062,8.492],["Ludwigsburg",48.897,9.191],["Marburg",50.809,8.77],["Tübingen",48.522,9.058],["Bayreuth",49.947,11.578],["Landshut",48.537,12.152],["Rosenheim",47.856,12.129],["Fulda",50.554,9.674],["Hamelin",52.104,9.357],["Worms",49.632,8.359],["Speyer",49.317,8.432],["Passau",48.567,13.431],["Ansbach",49.301,10.573],["Schwabach",49.331,11.024]];
@@ -298,9 +314,7 @@ function cityCoord(city){
   const partial = GERMAN_CITIES.find(c=>key.includes(c[0].toLowerCase())||c[0].toLowerCase().includes(key));
   return partial ? {lat:partial[1], lon:partial[2]} : null;
 }
-function populateCityList(){
-  document.getElementById('cityList').innerHTML = GERMAN_CITIES.map(c=>`<option value="${c[0]}">`).join('');
-}
+function populateCityList(){ /* no-op: replaced by the custom #locSuggest dropdown below */ }
 populateCityList();
 
 const PORTALS = [
@@ -311,19 +325,34 @@ const PORTALS = [
   {n:'LinkedIn', u:'https://www.linkedin.com/jobs/search/?location=Germany', d:'Professional network'},
   {n:'Xing', u:'https://www.xing.com/jobs/search', d:'DACH professional network'},
   {n:'Monster.de', u:'https://www.monster.de', d:'General aggregator'},
-  {n:'EURES', u:'https://ec.europa.eu/eures/portal/jv-se/search', d:'EU job mobility portal'}
+  {n:'EURES', u:'https://ec.europa.eu/eures/portal/jv-se/search', d:'EU job mobility portal'},
+  {n:'Zenjob', u:'https://www.zenjob.com/en/jobs', d:'Flexible mini-jobs & shifts for students, app-based booking'},
+  {n:'jobvalley', u:'https://jobvalley.com/de-de/', d:'Working-student & part-time jobs for students/graduates'},
+  {n:'HOGAPAGE', u:'https://www.hogapage.de/jobs/gastronomie', d:'Specialist portal for hotel, restaurant & bar jobs'}
 ];
 function renderPortals(){
   document.getElementById('portalGrid').innerHTML = PORTALS.map(p=>`<a class="portalcard" href="${p.u}" target="_blank" rel="noopener"><span class="plogo">${p.n.slice(0,2).toUpperCase()}</span><b>${p.n}</b><small>${p.d}</small></a>`).join('');
 }
 
 const CURATED_JOBS = [
-  {title:'Bartender (m/f/d)', company:'Various venues', city:'Berlin', type:'part_time', remote:false, visa:false, tags:['hospitality','bartender'], desc:'Curated pick — bars and hotels across Berlin hiring bartenders; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=bartender&l=Berlin%2C+Germany', curated:true},
-  {title:'Restaurant Server / Waiter (m/f/d)', company:'Various restaurants', city:'Munich', type:'part_time', remote:false, visa:false, tags:['hospitality','restaurant'], desc:'Curated pick — restaurants across Munich hiring servers; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=restaurant+server&l=Munich%2C+Germany', curated:true},
-  {title:'Warehouse Associate (m/f/d)', company:'Various logistics companies', city:'Frankfurt am Main', type:'full_time', remote:false, visa:false, tags:['warehouse','logistics'], desc:'Curated pick — logistics/warehouse operators across Frankfurt hiring; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=warehouse&l=Frankfurt%2C+Germany', curated:true},
-  {title:'Kitchen Assistant / Cook (m/f/d)', company:'Various restaurants', city:'Hamburg', type:'full_time', remote:false, visa:false, tags:['hospitality','kitchen'], desc:'Curated pick — restaurants across Hamburg hiring kitchen staff; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=kitchen+assistant&l=Hamburg%2C+Germany', curated:true},
-  {title:'Warehouse Picker/Packer (m/f/d)', company:'Various logistics companies', city:'Cologne', type:'full_time', remote:false, visa:false, tags:['warehouse','logistics'], desc:'Curated pick — logistics operators across Cologne hiring pickers/packers; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=warehouse+picker&l=Cologne%2C+Germany', curated:true}
+  {title:'Bartender (m/f/d)', company:'Various venues', city:'Berlin', type:'part_time', remote:false, visa:false, tags:['hospitality','bartender'], desc:'Curated pick — bars and hotels across Berlin hiring bartenders; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=bartender&l=Berlin%2C+Germany', curated:true, nonTech:true},
+  {title:'Restaurant Server / Waiter (m/f/d)', company:'Various restaurants', city:'Munich', type:'part_time', remote:false, visa:false, tags:['hospitality','restaurant'], desc:'Curated pick — restaurants across Munich hiring servers; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=restaurant+server&l=Munich%2C+Germany', curated:true, nonTech:true},
+  {title:'Warehouse Associate (m/f/d)', company:'Various logistics companies', city:'Frankfurt am Main', type:'full_time', remote:false, visa:false, tags:['warehouse','logistics'], desc:'Curated pick — logistics/warehouse operators across Frankfurt hiring; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=warehouse&l=Frankfurt%2C+Germany', curated:true, nonTech:true},
+  {title:'Kitchen Assistant / Cook (m/f/d)', company:'Various restaurants', city:'Hamburg', type:'full_time', remote:false, visa:false, tags:['hospitality','kitchen'], desc:'Curated pick — restaurants across Hamburg hiring kitchen staff; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=kitchen+assistant&l=Hamburg%2C+Germany', curated:true, nonTech:true},
+  {title:'Warehouse Picker/Packer (m/f/d)', company:'Various logistics companies', city:'Cologne', type:'full_time', remote:false, visa:false, tags:['warehouse','logistics'], desc:'Curated pick — logistics operators across Cologne hiring pickers/packers; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=warehouse+picker&l=Cologne%2C+Germany', curated:true, nonTech:true},
+  {title:'Mini-jobs & flexible shifts — browse on Zenjob', company:'Zenjob (app-based)', city:'Nationwide', type:'part_time', remote:false, visa:false, tags:['minijob','hospitality','warehouse','retail'], desc:'Curated pick — Zenjob books short-term shifts (retail, warehouse, bars/restaurants, events) via its app, no per-job application. Students only, in-app sign-up required.', link:'https://www.zenjob.com/en/jobs', curated:true, nonTech:true},
+  {title:'Working-student & part-time jobs — browse on jobvalley', company:'jobvalley (Studitemps)', city:'Nationwide', type:'part_time', remote:false, visa:false, tags:['minijob','student'], desc:'Curated pick — jobvalley matches students/graduates to working-student and part-time roles across Germany.', link:'https://jobvalley.com/de-de/', curated:true, nonTech:true},
+  {title:'Restaurant, hotel & bar jobs — browse on HOGAPAGE', company:'HOGAPAGE (specialist portal)', city:'Nationwide', type:'full_time', remote:false, visa:false, tags:['hospitality','bartender','restaurant'], desc:'Curated pick — HOGAPAGE is a dedicated hospitality job board covering hotels, restaurants, bars and catering across Germany.', link:'https://www.hogapage.de/jobs/gastronomie', curated:true, nonTech:true}
 ];
+
+// Rough "non-tech" classifier for filtering — matches on tags/title keywords typical of
+// hospitality, retail, warehouse/logistics, delivery and other non-office work.
+const NONTECH_KEYWORDS = /hospitality|bartender|restaurant|kitchen|waiter|waitress|barista|cook|chef|warehouse|logistics|retail|cashier|sales assistant|shop assistant|delivery|driver|cleaning|housekeeping|minijob|gastronomie|kellner|koch|lager|reinigung|fahrer|verkäufer/i;
+function isNonTech(j){
+  if(j.nonTech) return true;
+  const hay = (j.title+' '+(j.tags||[]).join(' ')).toLowerCase();
+  return NONTECH_KEYWORDS.test(hay);
+}
 
 function inferLevel(title){
   const t = title.toLowerCase();
@@ -335,21 +364,104 @@ function inferLevel(title){
 }
 const levelLabel = {internship:'Internship',student:'Working student',entry:'Entry level',mid:'Mid-level',senior:'Senior'};
 
+// Strip HTML properly (handles nested tags + entities like &nbsp;) instead of a naive regex,
+// which was leaving raw markup visible for some descriptions.
+function stripHtml(html){
+  if(!html) return '';
+  const withBreaks = html.replace(/<\/(p|div|li|br)>/gi, '\n').replace(/<br\s*\/?>/gi, '\n');
+  const tmp = document.createElement('div');
+  tmp.innerHTML = withBreaks;
+  const text = tmp.textContent || tmp.innerText || '';
+  return text.replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim();
+}
+
+// Best-effort extraction of the German-language requirement from a job's title + description.
+// Looks for explicit CEFR levels (A1–C2) or common phrases — in both English and German, since
+// most real German job postings state the requirement in German ("sehr gute Deutschkenntnisse").
+function inferGermanLevel(text){
+  if(!text) return 'Not mentioned';
+  const t = text;
+  const lower = t.toLowerCase();
+
+  // Explicit CEFR level near the word German/Deutsch, e.g. "German (C1)", "Deutschkenntnisse B2"
+  const cefrNearGerman = t.match(/german[^.\n]{0,40}?\b([ABC][12])\b/i) || t.match(/\b([ABC][12])\b[^.\n]{0,40}?german/i)
+    || t.match(/deutsch[^.\n]{0,40}?\b([ABC][12])\b/i) || t.match(/\b([ABC][12])\b[^.\n]{0,40}?deutsch/i);
+  if(cefrNearGerman){
+    const lvl = cefrNearGerman[1].toUpperCase();
+    const required = /required|must|need|essential|mandatory|erforderlich|voraussetzung|zwingend|mindestens/i.test(cefrNearGerman[0]) || !/plus|nice to have|advantage|preferred|von vorteil|wünschenswert/i.test(cefrNearGerman[0]);
+    return `${lvl}${required?' required':' preferred'}`;
+  }
+
+  // No German required at all
+  if(/no german (is )?(required|needed)|german (is )?not required|german not needed|without german|kein(e)? deutschkenntnisse|deutschkenntnisse nicht erforderlich|deutsch(kenntnisse)? sind kein muss|deutsch(kenntnisse)? kein muss/i.test(lower)){
+    return 'Not required';
+  }
+
+  // Fluent / native / very good / business-level German (English + German phrasings)
+  if(/(fluent|native|business[- ]level|proficient|excellent)[^.\n]{0,20}german|german[^.\n]{0,20}(fluent|native|mandatory)/i.test(lower)
+     || /(sehr gut(e|es)?|fließend(e)?|verhandlungssicher(e)?|ausgezeichnet(e)?|muttersprach\w*|exzellent\w*)[^.\n]{0,25}deutsch|deutsch[^.\n]{0,15}(muttersprache|verhandlungssicher)/i.test(lower)){
+    return 'Fluent required';
+  }
+
+  // Basic / conversational German
+  if(/(basic|conversational|working knowledge of|some)[^.\n]{0,20}german|(grundkenntnisse|einfache|gute)[^.\n]{0,20}deutsch/i.test(lower)){
+    return 'Basic required';
+  }
+
+  // German is a plus / preferred but not required
+  if(/german[^.\n]{0,25}(a plus|preferred|advantage|nice to have|beneficial)|deutsch[^.\n]{0,25}(von vorteil|wünschenswert|nice to have|ein plus)/i.test(lower)){
+    return 'Preferred, not required';
+  }
+
+  // Generic mention of German language skills with no clear level
+  if(/german (language )?(skills|knowledge)|deutschkenntnisse/i.test(lower)){
+    return 'Mentioned, level unclear';
+  }
+
+  return 'Not mentioned';
+}
+
+// This board is scoped to Germany. Arbeitnow aggregates postings from across Europe/remote-anywhere,
+// so filter down to jobs that are actually in Germany rather than listing everything blindly.
+const NON_GERMANY_HINTS = ['england','united kingdom',' uk','scotland','wales','northern ireland','ireland','france','spain','italy','netherlands','poland','austria','switzerland','belgium','portugal','sweden','denmark','norway','finland','czech','hungary','romania','bulgaria','greece','usa','united states','canada','india','pakistan','australia','worldwide','anywhere'];
+function isGermanJob(city){
+  const c = (city||'').toLowerCase().trim();
+  if(!c) return false;
+  if(c.includes('germany') || c.includes('deutschland')) return true;
+  if(NON_GERMANY_HINTS.some(h=>c.includes(h))) return false;
+  return !!cityCoord(city); // recognized German city name with no country suffix at all
+}
+
 async function fetchJobs(){
   document.getElementById('jobList').innerHTML = '<div class="empty">Loading live jobs from Arbeitnow…</div>';
   try{
-    const res = await fetch('https://www.arbeitnow.com/api/job-board-api');
-    const data = await res.json();
     jobs.length = 0;
-    data.data.forEach(j => jobs.push({
-      title: j.title, company: j.company_name, city: j.location || "Not specified",
-      type: (j.job_types && j.job_types[0] || 'full_time').toLowerCase().replace(/\s+/g,'_'),
-      remote: !!j.remote, visa: !!j.visa_sponsorship, tags: j.tags||[],
-      level: inferLevel(j.title), coord: null,
-      desc: (j.description||'').replace(/<[^>]+>/g,'').slice(0,220)+'…',
-      link: j.url, curated:false
-    }));
-    CURATED_JOBS.forEach(j=>jobs.push({...j, level: inferLevel(j.title)}));
+    // Arbeitnow paginates ~100 jobs per page. A single fetch only returns page 1, so
+    // pull a few pages here to cover more of the live board (capped to stay reasonably fast).
+    let url = 'https://www.arbeitnow.com/api/job-board-api';
+    let pagesFetched = 0;
+    const MAX_PAGES = 5;
+    while(url && pagesFetched < MAX_PAGES){
+      const res = await fetch(url);
+      const data = await res.json();
+      (data.data||[]).forEach(j => {
+        if(!isGermanJob(j.location||'')) return;
+        const rawDesc = j.description || '';
+        const germanLevel = inferGermanLevel(j.title + '\n' + rawDesc);
+        const cleanDesc = stripHtml(rawDesc);
+        jobs.push({
+          title: j.title, company: j.company_name, city: j.location || "Not specified",
+          type: (j.job_types && j.job_types[0] || 'full_time').toLowerCase().replace(/\s+/g,'_'),
+          remote: !!j.remote, visa: !!j.visa_sponsorship, tags: j.tags||[],
+          level: inferLevel(j.title), coord: null, german: germanLevel,
+          desc: cleanDesc.slice(0,220) + (cleanDesc.length>220?'…':''),
+          link: j.url, curated:false
+        });
+      });
+      pagesFetched++;
+      url = (data.links && data.links.next) ? data.links.next : null;
+    }
+    CURATED_JOBS.forEach(j=>jobs.push({...j, level: inferLevel(j.title), german: inferGermanLevel(j.title+' '+(j.desc||''))}));
     jobs.forEach(j=>{ j.coord = cityCoord(j.city); });
     populateSectors();
     populateTagCloud();
@@ -385,7 +497,7 @@ function renderSearchFor(){
 }
 function renderSuitable(){
   const picks = jobs.filter(j=>!j.curated).slice(0,4);
-  document.getElementById('suitableList').innerHTML = picks.map(j=>`<div class="suitjob"><div class="joblogo">${(j.company||'?').slice(0,2).toUpperCase()}</div><div><b>${j.title.slice(0,40)}${j.title.length>40?'…':''}</b><span>${j.company} · ${j.city}</span></div></div>`).join('');
+  document.getElementById('suitableList').innerHTML = picks.map(j=>`<div class="suitjob"><div class="joblogo">${esc((j.company||'?').slice(0,2).toUpperCase())}</div><div><b>${esc(j.title.slice(0,40))}${j.title.length>40?'…':''}</b><span>${esc(j.company)} · ${esc(j.city)}</span></div></div>`).join('');
 }
 
 function haversine(lat1,lon1,lat2,lon2){
@@ -441,7 +553,7 @@ document.getElementById('moreLink').addEventListener('click', ()=>{
   w.style.display = showing ? 'none' : 'inline-block';
   document.getElementById('moreLink').textContent = showing ? 'Show all ▾' : 'Fewer filters ▾';
 });
-['fVisa','fRemote'].forEach(id=>{
+['fVisa','fRemote','fNonTech'].forEach(id=>{
   document.getElementById(id).addEventListener('click', e=>{
     e.target.classList.toggle('on');
     render();
@@ -459,18 +571,39 @@ function render(){
   const sort = document.getElementById('fSort').value;
   const visaOnly = document.getElementById('fVisa').classList.contains('on');
   const remoteOnly = document.getElementById('fRemote').classList.contains('on');
+  const nonTechOnly = document.getElementById('fNonTech').classList.contains('on');
 
-  let list = jobs.filter(j =>
-    (!t || j.type===t) &&
-    (!lvl || j.level===lvl) &&
-    (!sector || j.tags.includes(sector)) &&
-    (!visaOnly || j.visa) &&
-    (!remoteOnly || j.remote) &&
-    (!titleQ || (j.title+" "+j.company).toLowerCase().includes(titleQ)) &&
-    (!locQ || j.city.toLowerCase().includes(locQ)) &&
-    (!dist || !refCoords || (j.coord && haversine(refCoords.lat,refCoords.lon,j.coord.lat,j.coord.lon) <= +dist))
-  );
+  // Location matching: if we could resolve the typed/geolocated place to coordinates, filter by
+  // actual distance instead of also requiring the job's raw city string to literally contain the
+  // typed text — a job in "München" or a nearby town would never match "Clausthal-Zellerfeld" as
+  // text, even though it's well within range. Only fall back to a text match when we have no
+  // coordinates to work with (unrecognized place name).
+  let list = jobs.filter(j => {
+    let locOk = true;
+    if(locQ){
+      if(refCoords){
+        locOk = !!(j.coord && haversine(refCoords.lat,refCoords.lon,j.coord.lat,j.coord.lon) <= (dist?+dist:99999));
+      } else {
+        locOk = j.city.toLowerCase().includes(locQ);
+      }
+    } else if(dist && refCoords){
+      locOk = !!(j.coord && haversine(refCoords.lat,refCoords.lon,j.coord.lat,j.coord.lon) <= +dist);
+    }
+    return (!t || j.type===t) &&
+      (!lvl || j.level===lvl) &&
+      (!sector || j.tags.includes(sector)) &&
+      (!visaOnly || j.visa) &&
+      (!remoteOnly || j.remote) &&
+      (nonTechOnly ? isNonTech(j) : !isNonTech(j)) &&
+      (!titleQ || (j.title+" "+j.company).toLowerCase().includes(titleQ)) &&
+      locOk;
+  });
   if(sort==='az') list = list.slice().sort((a,b)=>a.company.localeCompare(b.company));
+  // Curated picks (Zenjob, jobvalley, HOGAPAGE, bartender/warehouse searches, etc.) are pushed
+  // to the end of the underlying jobs array, so with hundreds of live results ahead of them they
+  // almost never survive the render cap below. Float any curated matches to the top so they're
+  // actually visible instead of being buried.
+  list = list.slice().sort((a,b)=>(b.curated?1:0)-(a.curated?1:0));
 
   document.getElementById('count').textContent = `${list.length} of ${jobs.length} live roles — refreshed on page load`;
   const el = document.getElementById('jobList');
@@ -479,22 +612,22 @@ function render(){
     const km = (refCoords && j.coord) ? Math.round(haversine(refCoords.lat,refCoords.lon,j.coord.lat,j.coord.lon))+' km from you' : '';
     return `
     <div class="job ${selectedJob && selectedJob.link===j.link?'tailored':''}">
-      <div class="joblogo">${(j.company||'?').slice(0,2).toUpperCase()}</div>
+      <div class="joblogo">${esc((j.company||'?').slice(0,2).toUpperCase())}</div>
       <div class="jobmain">
-        <h3>${j.title}</h3>
-        <div class="meta">${j.company} · ${j.city}${km?' · '+km:''}</div>
+        <h3>${esc(j.title)}</h3>
+        <div class="meta">${esc(j.company)} · ${esc(j.city)}${km?' · '+km:''} · German - ${esc(j.german||'Not mentioned')}</div>
         <div class="tags">
-          ${tag(typeLabel[j.type]||j.type)}
+          ${tag(typeLabel[j.type]||esc(j.type))}
           ${tag(levelLabel[j.level],'level')}
           ${j.remote?tag('Remote-friendly'):''}
           ${j.visa?tag('Visa sponsorship','level'):''}
           ${j.curated?tag('Curated','curated'):''}
         </div>
-        <p class="desc">${j.desc}</p>
+        <p class="desc">${esc(j.desc)}</p>
         <button class="btn-tailor" onclick="tailorTo(${jobs.indexOf(j)})">Tailor resume to this job →</button>
       </div>
       <div class="jobactions">
-        <a class="btn-apply" target="_blank" rel="noopener" href="${j.link}">${j.curated?'See openings':'Apply now'}</a>
+        <a class="btn-apply" target="_blank" rel="noopener" href="${esc(j.link)}">${j.curated?'See openings':'Apply now'}</a>
         <button class="btn-save" onclick="this.classList.toggle('saved');this.textContent=this.classList.contains('saved')?'★ Saved':'☆ Save'">☆ Save</button>
       </div>
     </div>`;
@@ -504,8 +637,66 @@ function render(){
 document.getElementById('qTitle').addEventListener('input',render);
 document.getElementById('qLoc').addEventListener('input', e=>{
   typedLocCoords = cityCoord(e.target.value);
+  renderLocSuggest(e.target.value);
   render();
 });
+
+// Custom location-suggest dropdown (German cities only, since the board is Germany-scoped) —
+// shows matches as you type, styled like a normal search-suggest list, keyboard + mouse selectable.
+let locActiveIndex = -1;
+let locMatches = [];
+function renderLocSuggest(query){
+  const box = document.getElementById('locSuggest');
+  const q = query.trim().toLowerCase();
+  locActiveIndex = -1;
+  if(!q){ box.style.display='none'; box.innerHTML=''; locMatches=[]; return; }
+  const starts = GERMAN_CITIES.filter(c=>c[0].toLowerCase().startsWith(q));
+  const includes = GERMAN_CITIES.filter(c=>!c[0].toLowerCase().startsWith(q) && c[0].toLowerCase().includes(q));
+  locMatches = starts.concat(includes).slice(0,6);
+  if(!locMatches.length){ box.style.display='none'; box.innerHTML=''; return; }
+  box.innerHTML = locMatches.map((c,i)=>{
+    const name = c[0];
+    const idx = name.toLowerCase().indexOf(q);
+    const label = idx>=0
+      ? `${name.slice(0,idx)}<b>${name.slice(idx,idx+q.length)}</b>${name.slice(idx+q.length)}`
+      : name;
+    return `<div class="opt" data-i="${i}">${label}<span class="country">, Germany</span></div>`;
+  }).join('');
+  positionLocSuggest();
+  box.style.display = 'block';
+  box.querySelectorAll('.opt').forEach(el=>{
+    el.addEventListener('mousedown', ev=>{ ev.preventDefault(); pickLocMatch(+el.dataset.i); });
+  });
+}
+function positionLocSuggest(){
+  const input = document.getElementById('qLoc');
+  const box = document.getElementById('locSuggest');
+  box.style.left = input.offsetLeft + 'px';
+  box.style.width = input.offsetWidth + 'px';
+}
+function pickLocMatch(i){
+  const c = locMatches[i];
+  if(!c) return;
+  const input = document.getElementById('qLoc');
+  input.value = c[0];
+  typedLocCoords = {lat:c[1], lon:c[2]};
+  document.getElementById('locSuggest').style.display = 'none';
+  render();
+}
+document.getElementById('qLoc').addEventListener('keydown', e=>{
+  if(!locMatches.length || document.getElementById('locSuggest').style.display==='none') return;
+  const opts = document.querySelectorAll('#locSuggest .opt');
+  if(e.key==='ArrowDown'){ e.preventDefault(); locActiveIndex = Math.min(locActiveIndex+1, opts.length-1); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); locActiveIndex = Math.max(locActiveIndex-1, 0); }
+  else if(e.key==='Enter'){ if(locActiveIndex>=0){ e.preventDefault(); pickLocMatch(locActiveIndex); } return; }
+  else if(e.key==='Escape'){ document.getElementById('locSuggest').style.display='none'; return; }
+  else return;
+  opts.forEach((el,i)=>el.classList.toggle('active', i===locActiveIndex));
+});
+document.getElementById('qLoc').addEventListener('blur', ()=>{
+  setTimeout(()=>{ document.getElementById('locSuggest').style.display='none'; }, 120);
+});
+window.addEventListener('resize', positionLocSuggest);
 document.getElementById('searchBtn').addEventListener('click',render);
 fetchJobs();
 
