@@ -194,10 +194,6 @@ nav.mainnav a:hover{color:var(--purple)}
     <div class="tagcloud" id="tagCloud"></div>
   </div>
 
-  <div class="notice">
-    <b>This is the live version:</b> most listings load fresh from Arbeitnow's public job API every time this page opens — real postings, real apply links, no snapshot. That API doesn't include German-level, sector, seniority, bartender/restaurant/warehouse roles, or listings from sites like eFinancialCareers, so: <b>Experience level</b> and <b>Sectors</b> are inferred from titles/tags (best effort); a small set of <b>hospitality &amp; warehouse roles</b> below are curated picks that link out to a live filtered search instead of a single fixed posting (marked "Curated"); and other German job portals are linked in the grid below rather than embedded, since they don't offer a public API. <b>Distance</b> matches against a built-in table of ~100 German cities — type a city into the Location field and pick from the suggestions (or click "Use my location"), then choose a radius.
-  </div>
-
   <div class="layout">
     <div>
       <div class="count" id="count"></div>
@@ -288,7 +284,6 @@ const jobs = [];
 let selectedJob = null;
 let userCoords = null;
 let typedLocCoords = null;
-populateCityList();
 const typeLabel = {full_time:"Full-time", part_time:"Part-time", contract:"Contract / flexible", internship:"Internship", temporary:"Temporary"};
 function tag(t,cls=""){return `<span class="tag ${cls}">${t}</span>`}
 
@@ -306,6 +301,7 @@ function cityCoord(city){
 function populateCityList(){
   document.getElementById('cityList').innerHTML = GERMAN_CITIES.map(c=>`<option value="${c[0]}">`).join('');
 }
+populateCityList();
 
 const PORTALS = [
   {n:'eFinancialCareers', u:'https://www.efinancialcareers.de/jobs?countryCode=DE', d:'Finance & banking roles'},
