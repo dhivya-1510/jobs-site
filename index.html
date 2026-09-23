@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ankommen — Jobs in Germany for Internationals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F4EF; --panel:#FFFFFF; --ink:#1C2321; --ink-soft:#5B645F;
+  --line:#DEDACD; --petrol:#26525C; --petrol-deep:#173B43; --amber:#D98C3D;
+  --chip:#EDEAE0; --ok:#3E7A5A;
+  font-family:'Inter',system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#161A18; --panel:#1F2523; --ink:#EDEBE3; --ink-soft:#A9B0AB;
+    --line:#33403A; --chip:#28312D;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161A18; --panel:#1F2523; --ink:#EDEBE3; --ink-soft:#A9B0AB;
+  --line:#33403A; --chip:#28312D;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;margin:0}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+header.top{border-bottom:1px solid var(--line);padding:28px 0 22px;background:var(--panel)}
+header.top .row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+header.top h1{font-size:clamp(28px,4vw,40px);letter-spacing:-.01em}
+header.top p{margin:6px 0 0;color:var(--ink-soft);max-width:56ch;font-size:15px}
+.badge{font-size:12.5px;color:var(--petrol);background:var(--chip);border:1px solid var(--line);padding:5px 10px;border-radius:20px}
+
+.notice{background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13.5px;color:var(--ink-soft);margin:20px 0}
+.notice b{color:var(--ink)}
+
+.layout{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start;padding:28px 0 60px}
+@media (max-width:920px){.layout{grid-template-columns:1fr}}
+
+.filters{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+@media (max-width:700px){.filters{grid-template-columns:1fr 1fr}}
+.filters select,.filters input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font-size:14px;font-family:inherit}
+.count{font-size:13px;color:var(--ink-soft);margin-bottom:14px}
+
+.job{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:12px}
+.job h3{font-size:18px}
+.job .meta{color:var(--ink-soft);font-size:13.5px;margin-top:3px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.tag{font-size:12px;background:var(--chip);border:1px solid var(--line);padding:3px 9px;border-radius:20px;color:var(--ink-soft)}
+.tag.level{color:var(--petrol);border-color:var(--petrol);background:transparent}
+.job p.desc{font-size:14px;color:var(--ink-soft);margin:8px 0 12px}
+.job .actions{display:flex;gap:10px;align-items:center}
+.job a.apply{font-size:13.5px;font-weight:600;color:var(--petrol);text-decoration:none;border-bottom:1px solid var(--petrol)}
+.job button.askai{font-size:13px;background:none;border:1px solid var(--line);border-radius:7px;padding:6px 10px;cursor:pointer;color:var(--ink);font-family:inherit}
+.job button.askai:hover{border-color:var(--petrol);color:var(--petrol)}
+.empty{color:var(--ink-soft);font-size:14px;padding:20px 0}
+
+.portals{margin-top:22px;font-size:13.5px}
+.portals a{display:inline-block;margin:4px 8px 0 0;color:var(--petrol);text-decoration:underline}
+
+/* AI panel */
+.ai{position:sticky;top:20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 40px)}
+.ai h2{font-size:19px}
+.ai .sub{font-size:13px;color:var(--ink-soft);margin-top:-6px}
+.ai textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:8px;padding:10px;font-family:inherit;font-size:13.5px;background:var(--bg);color:var(--ink);resize:vertical}
+.ai .quick{display:flex;flex-wrap:wrap;gap:6px}
+.ai .quick button{font-size:12.5px;background:var(--chip);border:1px solid var(--line);border-radius:20px;padding:6px 11px;cursor:pointer;color:var(--ink);font-family:inherit}
+.ai .quick button:hover{border-color:var(--petrol);color:var(--petrol)}
+.ai .chat{flex:1;overflow-y:auto;min-height:120px;max-height:280px;display:flex;flex-direction:column;gap:10px;padding-right:2px}
+.msg{font-size:13.5px;padding:9px 12px;border-radius:9px;line-height:1.5;white-space:pre-wrap}
+.msg.user{background:var(--chip);align-self:flex-end;max-width:88%}
+.msg.ai{background:transparent;border:1px solid var(--line);align-self:flex-start;max-width:96%}
+.ai .inputrow{display:flex;gap:8px}
+.ai .inputrow input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font-family:inherit;font-size:13.5px}
+.ai .inputrow button{background:var(--petrol);color:#fff;border:none;border-radius:8px;padding:0 16px;font-weight:600;cursor:pointer;font-size:13.5px}
+.ai .inputrow button:disabled{opacity:.5;cursor:default}
+.ai .hint{font-size:12px;color:var(--ink-soft)}
+footer{text-align:center;color:var(--ink-soft);font-size:12.5px;padding:24px 0 40px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap row">
+    <div>
+      <h1>Ankommen</h1>
+      <p>A job board built for internationals moving to or living in Germany — filter by German level, language, and work type, with an AI assistant to sharpen your resume for the roles you find.</p>
+    </div>
+    <span class="badge">🇩🇪 Made for newcomers</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="notice">
+    <b>This is the live version:</b> job listings load fresh from Arbeitnow's public job API every time this page opens — real postings, real apply links, no snapshot. One honest gap: that API doesn't include German-level or working-language fields, so those filters aren't here (use the search box — many titles/companies signal it, e.g. "English-speaking", "Werkstudent"). Filters here are job type, visa sponsorship, and remote.
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="filters">
+        <select id="fType">
+          <option value="">Job type — any</option>
+          <option value="full_time">Full-time</option>
+          <option value="part_time">Part-time</option>
+          <option value="contract">Contract / flexible</option>
+          <option value="internship">Internship</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink-soft)"><input type="checkbox" id="fVisa"> Visa sponsorship</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink-soft)"><input type="checkbox" id="fRemote"> Remote-friendly</label>
+        <input id="fSearch" type="text" placeholder="Search title, city, company…">
+      </div>
+      <div class="count" id="count"></div>
+      <div id="jobList"></div>
+
+      <div class="portals">
+        Browse full live listings:
+        <a href="https://www.make-it-in-germany.com/en/jobs" target="_blank" rel="noopener">Make it in Germany</a>
+        <a href="https://ec.europa.eu/eures/portal/jv-se/search" target="_blank" rel="noopener">EURES</a>
+        <a href="https://www.linkedin.com/jobs/search/?location=Germany" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://www.indeed.com/jobs?l=Germany" target="_blank" rel="noopener">Indeed.de</a>
+        <a href="https://www.stepstone.de/jobs/english-speaking" target="_blank" rel="noopener">StepStone (English)</a>
+      </div>
+    </div>
+
+    <aside class="ai">
+      <div>
+        <h2>Resume assistant</h2>
+        <div class="sub">Paste your resume text, then ask what to fix.</div>
+      </div>
+      <textarea id="resumeBox" placeholder="Paste your resume text here (or just start chatting below)…"></textarea>
+      <div class="quick">
+        <button data-q="review">Review my resume</button>
+        <button data-q="gaps">What's lagging?</button>
+        <button data-q="tailor">Tailor it to a selected job</button>
+        <button data-q="german">German CV format tips</button>
+      </div>
+      <div class="chat" id="chat"></div>
+      <div class="inputrow">
+        <input id="chatInput" type="text" placeholder="Ask anything about your resume or job search…">
+        <button id="sendBtn">Ask</button>
+      </div>
+      <div class="hint" id="aiHint"></div>
+    </aside>
+  </div>
+</div>
+
+<footer>Ankommen — built to help internationals navigate the German job market. Not affiliated with any job portal.</footer>
+
+<script>
+const jobs = []; // populated live from the Arbeitnow API — see fetchJobs() below
+function tag(t,cls=""){return `<span class="tag ${cls}">${t}</span>`}
+const typeLabel = {full_time:"Full-time", part_time:"Part-time", contract:"Contract / flexible", internship:"Internship", temporary:"Temporary"};
+
+async function fetchJobs(){
+  document.getElementById('jobList').innerHTML = '<div class="empty">Loading live jobs from Arbeitnow…</div>';
+  try{
+    const res = await fetch('https://www.arbeitnow.com/api/job-board-api');
+    const data = await res.json();
+    jobs.length = 0;
+    data.data.forEach(j => jobs.push({
+      title: j.title, company: j.company_name, city: j.location || "Not specified",
+      type: (j.job_types && j.job_types[0] || 'full_time').toLowerCase().replace(/\s+/g,'_'),
+      remote: !!j.remote, visa: !!j.visa_sponsorship, tags: (j.tags||[]).join(' '),
+      desc: (j.description||'').replace(/<[^>]+>/g,'').slice(0,220)+'…',
+      link: j.url
+    }));
+    render();
+  }catch(e){
+    document.getElementById('jobList').innerHTML = '<div class="empty">Could not reach the Arbeitnow API right now. Check your connection and try refreshing.</div>';
+  }
+}
+
+function render(){
+  const t = document.getElementById('fType').value;
+  const visaOnly = document.getElementById('fVisa').checked;
+  const remoteOnly = document.getElementById('fRemote').checked;
+  const s = document.getElementById('fSearch').value.trim().toLowerCase();
+  const list = jobs.filter(j =>
+    (!t || j.type===t) &&
+    (!visaOnly || j.visa) &&
+    (!remoteOnly || j.remote) &&
+    (!s || (j.title+j.city+j.company+j.tags).toLowerCase().includes(s))
+  );
+  document.getElementById('count').textContent = `${list.length} of ${jobs.length} live roles — refreshed on page load`;
+  const el = document.getElementById('jobList');
+  if(!list.length){ el.innerHTML = '<div class="empty">No roles match those filters right now — try widening them.</div>'; return; }
+  el.innerHTML = list.slice(0,60).map(j => `
+    <div class="job">
+      <h3>${j.title}</h3>
+      <div class="meta">${j.company} · ${j.city}</div>
+      <div class="tags">
+        ${tag(typeLabel[j.type]||j.type)}
+        ${j.remote?tag('Remote-friendly'):''}
+        ${j.visa?tag('Visa sponsorship','level'):''}
+      </div>
+      <p class="desc">${j.desc}</p>
+      <div class="actions">
+        <a class="apply" target="_blank" rel="noopener" href="${j.link}">Open posting →</a>
+      </div>
+    </div>
+  `).join('');
+}
+['fType'].forEach(id=>document.getElementById(id).addEventListener('change',render));
+['fVisa','fRemote'].forEach(id=>document.getElementById(id).addEventListener('change',render));
+document.getElementById('fSearch').addEventListener('input',render);
+fetchJobs();
+
+// Resume assistant — this needs YOUR OWN Anthropic API key wired through a small serverless
+// function (never call the Anthropic API directly from browser JS with a key — it would be
+// visible to every visitor). See the comment block at the bottom of this file for a ready-made
+// Vercel/Netlify function you can drop in, then point askBackend() at it.
+const ASSISTANT_ENDPOINT = "/.netlify/functions/ask"; // matches the function created in netlify/functions/ask.js
+async function askBackend(prompt){
+  if(!ASSISTANT_ENDPOINT) throw new Error("not configured");
+  const r = await fetch(ASSISTANT_ENDPOINT, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt})});
+  return (await r.json()).text;
+}
+
+const chat = document.getElementById('chat');
+function addMsg(role, text){
+  const d = document.createElement('div');
+  d.className = 'msg ' + (role==='user'?'user':'ai');
+  d.textContent = text;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+  return d;
+}
+async function ask(text){
+  if(!text) return;
+  addMsg('user', text);
+  const resume = document.getElementById('resumeBox').value.trim();
+  const thinking = addMsg('ai', 'Thinking…');
+  try{
+    const full = (resume ? "RESUME:\n"+resume+"\n\n" : "") + "QUESTION: " + text;
+    thinking.textContent = await askBackend(full);
+  }catch(e){
+    thinking.textContent = "The AI assistant isn't wired up yet — see the ASSISTANT_ENDPOINT comment near the top of the script for a ready-made backend to deploy.";
+  }
+}
+document.getElementById('sendBtn').addEventListener('click', () => {
+  const inp = document.getElementById('chatInput');
+  const v = inp.value.trim();
+  if(!v) return;
+  inp.value = '';
+  ask(v);
+});
+document.getElementById('chatInput').addEventListener('keydown', e => { if(e.key==='Enter'){ document.getElementById('sendBtn').click(); }});
+document.querySelectorAll('.quick button').forEach(btn=>{
+  btn.addEventListener('click', () => {
+    const map = {
+      review: "Please review my resume overall and tell me its strengths and weaknesses.",
+      gaps: "What's lagging in my resume compared to what German employers typically expect? Be specific.",
+      tailor: "Give me general advice on tailoring a resume to a job posting.",
+      german: "What does a proper German-style CV (Lebenslauf) need that my current resume might not have?"
+    };
+    ask(map[btn.dataset.q]);
+  });
+});
+
+/* ── OPTIONAL: minimal Vercel serverless function for the resume assistant ──
+Save as /api/ask.js in a Vercel project, add ANTHROPIC_API_KEY as an environment
+variable in the Vercel dashboard (never in this file), deploy, then set
+ASSISTANT_ENDPOINT above to "/api/ask".
+
+export default async function handler(req, res) {
+  const { prompt } = req.body;
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': process.env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 800,
+      messages: [{ role: 'user', content:
+        'You are a career coach for internationals job-hunting in Germany. Be specific and concise.\n\n' + prompt }]
+    })
+  });
+  const data = await r.json();
+  res.status(200).json({ text: data.content?.[0]?.text || 'No response.' });
+}
+──────────────────────────────────────────────────────────────────────── */
+
+</script>
+</body>
+</html>
