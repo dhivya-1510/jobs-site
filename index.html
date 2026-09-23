@@ -6,7 +6,6 @@
 <title>jobsuche-in-deutschland — Jobs in Germany for Internationals</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
 :root{
@@ -109,7 +108,44 @@ nav.mainnav a:hover{color:var(--purple)}
 .ai .inputrow button{background:var(--purple);color:#fff;border:none;border-radius:8px;padding:0 16px;font-weight:800;cursor:pointer;font-size:13.5px}
 .ai .inputrow button:disabled{opacity:.5;cursor:default}
 .ai .hint{font-size:11.5px;color:var(--ink-soft)}
-footer{text-align:center;color:var(--ink-soft);font-size:12.5px;padding:24px 0 40px}
+.filebox{border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;background:var(--chip)}
+.filebox button{background:none;border:none;color:var(--purple-deep);font-weight:700;cursor:pointer;font-size:12px;font-family:inherit}
+
+.sidecard{background:#fff;border:2px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.sidecard h4{font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--ink-soft);text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.sidecard h4 a{color:var(--purple);text-decoration:underline;font-size:11.5px;text-transform:none}
+.searchfor{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13.5px;font-weight:600;border-bottom:1px solid var(--line);cursor:pointer}
+.searchfor:last-child{border-bottom:none}
+.searchfor .cnt{border:1.5px solid var(--purple);color:var(--purple-deep);border-radius:20px;padding:2px 10px;font-size:11.5px;font-weight:700}
+.suitjob{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.suitjob:last-child{border-bottom:none}
+.suitjob .joblogo{width:34px;height:34px;font-size:12px;border-radius:8px}
+.suitjob b{font-size:13px;font-weight:700;display:block}
+.suitjob span{font-size:12px;color:var(--ink-soft)}
+
+.alertbtn{border:1.5px solid var(--purple);border-radius:22px;padding:10px 16px;font-weight:700;font-size:13.5px;background:#fff;color:var(--purple-deep);cursor:pointer;font-family:inherit}
+.alertpanel{background:var(--purple-light);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px}
+.alertpanel input{padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-size:13.5px;width:220px;max-width:100%}
+.alertpanel button{background:var(--purple);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:700;cursor:pointer;font-family:inherit}
+.alertlist{margin-top:10px;font-size:12.5px;color:var(--ink-soft)}
+.alertlist span{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:16px;padding:4px 10px;margin:3px 4px 0 0}
+.alertlist button{background:none;border:none;color:var(--purple);cursor:pointer;font-weight:700;font-family:inherit}
+
+.portalgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:14px}
+.portalcard{background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px;text-decoration:none;display:flex;flex-direction:column;gap:6px}
+.portalcard:hover{border-color:var(--purple)}
+.portalcard .plogo{width:32px;height:32px;border-radius:8px;background:var(--purple-light);color:var(--purple-deep);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.portalcard b{font-size:13.5px}
+.portalcard small{color:var(--ink-soft);font-size:11.5px}
+.tag.curated{color:#B45309;border-color:#F5CBA7;background:#FEF3E2}
+
+.sitefooter{background:#0E0B14;color:#B9B2CC;margin-top:40px;padding:40px 0 24px}
+.sitefooter .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+@media(max-width:760px){.sitefooter .cols{grid-template-columns:1fr 1fr}}
+.sitefooter h5{color:#fff;font-size:15px;font-weight:800;margin-bottom:12px}
+.sitefooter a{display:block;color:#B9B2CC;font-size:13px;text-decoration:none;margin-bottom:9px;cursor:pointer}
+.sitefooter a:hover{color:#fff}
+.sitefooter .bottom{border-top:1px solid #2A2438;margin-top:28px;padding-top:16px;font-size:12px;color:#78708F;text-align:center}
 </style>
 </head>
 <body>
@@ -131,25 +167,35 @@ footer{text-align:center;color:var(--ink-soft);font-size:12.5px;padding:24px 0 4
     <p>A job board built for internationals moving to or living in Germany — search live postings, filter by type, experience level and distance from you, and get resume help tailored to the exact job you're applying for.</p>
     <div class="searchbar">
       <input id="qTitle" type="text" placeholder="Job title, keyword, or company">
-      <input id="qLoc" type="text" placeholder="Location (city)">
+      <input id="qLoc" type="text" placeholder="Location (city)" list="cityList" autocomplete="off">
+      <datalist id="cityList"></datalist>
       <button id="searchBtn">🔍 Search</button>
     </div>
     <div class="filterrow">
       <div class="pillwrap"><select id="fType"><option value="">Job type</option><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="contract">Contract / flexible</option><option value="internship">Internship</option></select></div>
       <div class="pillwrap"><select id="fLevel"><option value="">Experience level</option><option value="internship">Internship</option><option value="student">Working student</option><option value="entry">Entry level</option><option value="mid">Mid-level</option><option value="senior">Senior</option></select></div>
       <div class="pillwrap"><select id="fSector"><option value="">Sectors / skills</option></select></div>
-      <div class="pillwrap"><select id="fDistance" disabled><option value="">Distance — any</option><option value="10">Within 10 km</option><option value="25">Within 25 km</option><option value="50">Within 50 km</option><option value="100">Within 100 km</option><option value="200">Within 200 km</option></select></div>
+      <div class="pillwrap"><select id="fDistance"><option value="">Distance — any</option><option value="10">Within 10 km</option><option value="25">Within 25 km</option><option value="50">Within 50 km</option><option value="100">Within 100 km</option><option value="200">Within 200 km</option></select></div>
       <button class="locpill" id="locBtn">📍 Use my location</button>
       <button class="togglepill" id="fVisa">Visa sponsorship</button>
       <button class="togglepill" id="fRemote">Remote-friendly</button>
+      <button class="alertbtn" id="alertBtn">🔔 Create alert</button>
       <a class="morelink" id="moreLink">Show all ▾</a>
       <div class="pillwrap" id="sortWrap" style="display:none"><select id="fSort"><option value="new">Sort: Newest</option><option value="az">Sort: Company A–Z</option></select></div>
+    </div>
+    <div class="alertpanel" id="alertPanel" style="display:none">
+      <div>Get notified when jobs matching your current filters appear. <b>Demo note:</b> there's no email backend here, so alerts are saved in this browser only (localStorage), not actually emailed.</div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <input id="alertEmail" type="email" placeholder="you@example.com">
+        <button id="alertSave">Save alert</button>
+      </div>
+      <div class="alertlist" id="alertList"></div>
     </div>
     <div class="tagcloud" id="tagCloud"></div>
   </div>
 
   <div class="notice">
-    <b>This is the live version:</b> job listings load fresh from Arbeitnow's public job API every time this page opens — real postings, real apply links, no snapshot. The API doesn't include German-level, sector, or seniority fields, so <b>Experience level</b> and <b>Sectors</b> are inferred from job titles/tags (best effort). <b>Distance</b> uses your browser's location plus OpenStreetMap geocoding of each job's city, so first use can take a few seconds and requires location permission.
+    <b>This is the live version:</b> most listings load fresh from Arbeitnow's public job API every time this page opens — real postings, real apply links, no snapshot. That API doesn't include German-level, sector, seniority, bartender/restaurant/warehouse roles, or listings from sites like eFinancialCareers, so: <b>Experience level</b> and <b>Sectors</b> are inferred from titles/tags (best effort); a small set of <b>hospitality &amp; warehouse roles</b> below are curated picks that link out to a live filtered search instead of a single fixed posting (marked "Curated"); and other German job portals are linked in the grid below rather than embedded, since they don't offer a public API. <b>Distance</b> matches against a built-in table of ~100 German cities — type a city into the Location field and pick from the suggestions (or click "Use my location"), then choose a radius.
   </div>
 
   <div class="layout">
@@ -160,52 +206,128 @@ footer{text-align:center;color:var(--ink-soft);font-size:12.5px;padding:24px 0 4
         <div id="jobList"></div>
       </div>
 
-      <div class="portals">
-        Browse full live listings:
-        <a href="https://www.make-it-in-germany.com/en/jobs" target="_blank" rel="noopener">Make it in Germany</a>
-        <a href="https://ec.europa.eu/eures/portal/jv-se/search" target="_blank" rel="noopener">EURES</a>
-        <a href="https://www.linkedin.com/jobs/search/?location=Germany" target="_blank" rel="noopener">LinkedIn</a>
-        <a href="https://www.indeed.com/jobs?l=Germany" target="_blank" rel="noopener">Indeed.de</a>
-        <a href="https://www.stepstone.de/jobs/english-speaking" target="_blank" rel="noopener">StepStone (English)</a>
-      </div>
+      <div class="panelhead" style="margin-top:24px;border:2px solid var(--line);border-bottom:none;border-radius:14px 14px 0 0">More German job portals</div>
+      <div class="portalgrid" id="portalGrid" style="border:2px solid var(--line);border-top:none;border-radius:0 0 14px 14px;padding:14px"></div>
     </div>
 
-    <aside class="ai">
-      <div>
-        <h2>Resume assistant</h2>
-        <div class="sub" id="tailorSub">Not tailoring to a job yet — click "Tailor resume to this job" on any listing.</div>
+    <div class="asidecol">
+      <div class="sidecard">
+        <h4>Search for</h4>
+        <div id="searchForList"></div>
       </div>
-      <div class="filerow">
-        <label for="resumeFile">📎 Upload resume (.txt, .pdf, .docx)</label>
-        <input id="resumeFile" type="file" accept=".txt,.pdf,.docx" style="display:none">
+      <div class="sidecard">
+        <h4>Suitable jobs <a onclick="document.getElementById('jobList').scrollIntoView({behavior:'smooth'})">View all ›</a></h4>
+        <div id="suitableList"></div>
       </div>
-      <textarea id="resumeBox" placeholder="Paste your resume text here, or upload a file above…"></textarea>
-      <div class="quick">
-        <button data-q="review">Review my resume</button>
-        <button data-q="gaps">What's lagging?</button>
-        <button data-q="tailor">Tailor to selected job</button>
-        <button data-q="update">Update my resume for this job</button>
-        <button data-q="german">German CV format tips</button>
-      </div>
-      <div class="chat" id="chat"></div>
-      <div class="inputrow">
-        <input id="chatInput" type="text" placeholder="Ask anything about your resume or this job…">
-        <button id="sendBtn">Ask</button>
-      </div>
-      <div class="hint" id="aiHint"></div>
-    </aside>
+
+      <aside class="ai">
+        <div>
+          <h2>Resume assistant</h2>
+          <div class="sub" id="tailorSub">Not tailoring to a job yet — click "Tailor resume to this job" on any listing.</div>
+        </div>
+        <div class="filerow" id="uploadRow">
+          <label for="resumeFile">📎 Upload resume (.txt, .pdf, .docx)</label>
+          <input id="resumeFile" type="file" accept=".txt,.pdf,.docx" style="display:none">
+        </div>
+        <div class="filebox" id="fileStatus" style="display:none">
+          <span id="fileStatusText"></span>
+          <button id="fileRemove">Remove</button>
+        </div>
+        <textarea id="resumeBox" placeholder="…or paste resume text here (used if no file is attached; .pdf files are sent to the assistant as-is, not extracted)"></textarea>
+        <div class="quick">
+          <button data-q="review">Review my resume</button>
+          <button data-q="gaps">What's lagging?</button>
+          <button data-q="tailor">Tailor to selected job</button>
+          <button data-q="update">Update my resume for this job</button>
+          <button data-q="german">German CV format tips</button>
+        </div>
+        <div class="chat" id="chat"></div>
+        <div class="inputrow">
+          <input id="chatInput" type="text" placeholder="Ask anything about your resume or this job…">
+          <button id="sendBtn">Ask</button>
+        </div>
+        <div class="hint" id="aiHint"></div>
+      </aside>
+    </div>
   </div>
 </div>
 
-<footer>jobsuche-in-deutschland — built to help internationals navigate the German job market. Not affiliated with any job portal.</footer>
+<footer class="sitefooter">
+  <div class="wrap cols">
+    <div>
+      <h5>jobsuche-in-deutschland</h5>
+      <a onclick="document.querySelector('.searchbar').scrollIntoView({behavior:'smooth'})">About this site</a>
+      <a href="https://www.make-it-in-germany.com/en" target="_blank" rel="noopener">Working in Germany</a>
+      <a onclick="alert('Demo site — no real terms/imprint page yet.')">Imprint</a>
+    </div>
+    <div>
+      <h5>Job seekers</h5>
+      <a onclick="document.getElementById('alertBtn').click()">Create job alert</a>
+      <a onclick="document.querySelector('.searchbar').scrollIntoView({behavior:'smooth'})">Job search</a>
+      <a href="https://www.make-it-in-germany.com/en/jobs" target="_blank" rel="noopener">Search companies</a>
+      <a href="https://www.make-it-in-germany.com/en/visa-residence" target="_blank" rel="noopener">Visa &amp; residence guide</a>
+    </div>
+    <div>
+      <h5>Industry news &amp; insights</h5>
+      <a href="https://www.make-it-in-germany.com/en/living-in-germany" target="_blank" rel="noopener">Living in Germany guide</a>
+      <a href="https://www.iamexpat.de/career/employment-news" target="_blank" rel="noopener">Career news</a>
+      <a href="https://www.glassdoor.de/Gehalt/index.htm" target="_blank" rel="noopener">Salary overview</a>
+      <a href="https://www.bundesagentur-fuer-arbeit.de" target="_blank" rel="noopener">Bundesagentur für Arbeit</a>
+    </div>
+    <div>
+      <h5>Employers</h5>
+      <a onclick="alert('Demo site — employer posting is not implemented.')">Post a job</a>
+      <a href="https://www.arbeitnow.com" target="_blank" rel="noopener">Arbeitnow (our job source)</a>
+    </div>
+  </div>
+  <div class="bottom">jobsuche-in-deutschland — built to help internationals navigate the German job market. Not affiliated with any job portal.</div>
+</footer>
 
 <script>
 const jobs = [];
 let selectedJob = null;
 let userCoords = null;
-const geocodeCache = new Map();
+let typedLocCoords = null;
+populateCityList();
 const typeLabel = {full_time:"Full-time", part_time:"Part-time", contract:"Contract / flexible", internship:"Internship", temporary:"Temporary"};
 function tag(t,cls=""){return `<span class="tag ${cls}">${t}</span>`}
+
+// Built-in coordinates for major German cities — reliable & instant, no per-job geocoding calls
+const GERMAN_CITIES = [["Berlin",52.52,13.405],["Hamburg",53.551,9.993],["Munich",48.137,11.575],["München",48.137,11.575],["Cologne",50.937,6.96],["Köln",50.937,6.96],["Frankfurt am Main",50.11,8.682],["Stuttgart",48.775,9.182],["Düsseldorf",51.225,6.776],["Dortmund",51.514,7.466],["Essen",51.455,7.011],["Leipzig",51.34,12.375],["Bremen",53.079,8.802],["Dresden",51.05,13.737],["Hanover",52.375,9.732],["Hannover",52.375,9.732],["Nuremberg",49.453,11.077],["Nürnberg",49.453,11.077],["Duisburg",51.434,6.763],["Bochum",51.482,7.216],["Wuppertal",51.256,7.151],["Bielefeld",52.021,8.534],["Bonn",50.735,7.1],["Münster",51.962,7.626],["Karlsruhe",49.007,8.404],["Mannheim",49.489,8.466],["Augsburg",48.371,10.898],["Wiesbaden",50.083,8.24],["Mönchengladbach",51.185,6.442],["Gelsenkirchen",51.517,7.086],["Braunschweig",52.266,10.526],["Chemnitz",50.833,12.921],["Kiel",54.323,10.139],["Aachen",50.776,6.084],["Halle",51.482,11.969],["Magdeburg",52.131,11.64],["Freiburg im Breisgau",47.999,7.842],["Krefeld",51.334,6.559],["Lübeck",53.869,10.687],["Oberhausen",51.497,6.851],["Erfurt",50.985,11.033],["Mainz",49.993,8.247],["Rostock",54.092,12.099],["Kassel",51.313,9.492],["Hagen",51.359,7.473],["Saarbrücken",49.235,6.996],["Potsdam",52.4,13.058],["Ludwigshafen",49.482,8.446],["Oldenburg",53.143,8.214],["Leverkusen",51.03,6.99],["Osnabrück",52.279,8.047],["Solingen",51.171,7.084],["Heidelberg",49.399,8.672],["Darmstadt",49.873,8.651],["Würzburg",49.791,9.953],["Regensburg",49.019,12.097],["Ingolstadt",48.765,11.424],["Ulm",48.398,9.992],["Heilbronn",49.142,9.218],["Pforzheim",48.892,8.699],["Göttingen",51.534,9.935],["Offenbach",50.106,8.762],["Bottrop",51.524,6.929],["Trier",49.757,6.641],["Reutlingen",48.492,9.211],["Koblenz",50.354,7.594],["Bremerhaven",53.539,8.58],["Recklinghausen",51.614,7.198],["Jena",50.927,11.586],["Remscheid",51.178,7.19],["Erlangen",49.598,11.004],["Moers",51.451,6.626],["Siegen",50.875,8.024],["Hildesheim",52.15,9.951],["Salzgitter",52.157,10.335],["Cottbus",51.759,14.333],["Kaiserslautern",49.443,7.771],["Gera",50.879,12.083],["Schwerin",53.628,11.415],["Witten",51.443,7.34],["Flensburg",54.784,9.437],["Konstanz",47.66,9.176],["Neuss",51.198,6.688],["Gütersloh",51.907,8.394],["Hamm",51.68,7.821],["Göppingen",48.703,9.652],["Clausthal-Zellerfeld",51.806,10.336],["Goslar",51.907,10.43],["Paderborn",51.719,8.754],["Villingen-Schwenningen",48.062,8.492],["Ludwigsburg",48.897,9.191],["Marburg",50.809,8.77],["Tübingen",48.522,9.058],["Bayreuth",49.947,11.578],["Landshut",48.537,12.152],["Rosenheim",47.856,12.129],["Fulda",50.554,9.674],["Hamelin",52.104,9.357],["Worms",49.632,8.359],["Speyer",49.317,8.432],["Passau",48.567,13.431],["Ansbach",49.301,10.573],["Schwabach",49.331,11.024]];
+function normCity(s){ return (s||'').split(',')[0].trim().toLowerCase(); }
+function cityCoord(city){
+  const key = normCity(city);
+  if(!key || key==='not specified') return null;
+  const exact = GERMAN_CITIES.find(c=>c[0].toLowerCase()===key);
+  if(exact) return {lat:exact[1], lon:exact[2]};
+  const partial = GERMAN_CITIES.find(c=>key.includes(c[0].toLowerCase())||c[0].toLowerCase().includes(key));
+  return partial ? {lat:partial[1], lon:partial[2]} : null;
+}
+function populateCityList(){
+  document.getElementById('cityList').innerHTML = GERMAN_CITIES.map(c=>`<option value="${c[0]}">`).join('');
+}
+
+const PORTALS = [
+  {n:'eFinancialCareers', u:'https://www.efinancialcareers.de/jobs?countryCode=DE', d:'Finance & banking roles'},
+  {n:'Make it in Germany', u:'https://www.make-it-in-germany.com/en/jobs', d:'Official government job portal'},
+  {n:'StepStone', u:'https://www.stepstone.de/jobs/english-speaking', d:'General, English-friendly'},
+  {n:'Indeed.de', u:'https://www.indeed.com/jobs?l=Germany', d:'General aggregator'},
+  {n:'LinkedIn', u:'https://www.linkedin.com/jobs/search/?location=Germany', d:'Professional network'},
+  {n:'Xing', u:'https://www.xing.com/jobs/search', d:'DACH professional network'},
+  {n:'Monster.de', u:'https://www.monster.de', d:'General aggregator'},
+  {n:'EURES', u:'https://ec.europa.eu/eures/portal/jv-se/search', d:'EU job mobility portal'}
+];
+function renderPortals(){
+  document.getElementById('portalGrid').innerHTML = PORTALS.map(p=>`<a class="portalcard" href="${p.u}" target="_blank" rel="noopener"><span class="plogo">${p.n.slice(0,2).toUpperCase()}</span><b>${p.n}</b><small>${p.d}</small></a>`).join('');
+}
+
+const CURATED_JOBS = [
+  {title:'Bartender (m/f/d)', company:'Various venues', city:'Berlin', type:'part_time', remote:false, visa:false, tags:['hospitality','bartender'], desc:'Curated pick — bars and hotels across Berlin hiring bartenders; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=bartender&l=Berlin%2C+Germany', curated:true},
+  {title:'Restaurant Server / Waiter (m/f/d)', company:'Various restaurants', city:'Munich', type:'part_time', remote:false, visa:false, tags:['hospitality','restaurant'], desc:'Curated pick — restaurants across Munich hiring servers; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=restaurant+server&l=Munich%2C+Germany', curated:true},
+  {title:'Warehouse Associate (m/f/d)', company:'Various logistics companies', city:'Frankfurt am Main', type:'full_time', remote:false, visa:false, tags:['warehouse','logistics'], desc:'Curated pick — logistics/warehouse operators across Frankfurt hiring; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=warehouse&l=Frankfurt%2C+Germany', curated:true},
+  {title:'Kitchen Assistant / Cook (m/f/d)', company:'Various restaurants', city:'Hamburg', type:'full_time', remote:false, visa:false, tags:['hospitality','kitchen'], desc:'Curated pick — restaurants across Hamburg hiring kitchen staff; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=kitchen+assistant&l=Hamburg%2C+Germany', curated:true},
+  {title:'Warehouse Picker/Packer (m/f/d)', company:'Various logistics companies', city:'Cologne', type:'full_time', remote:false, visa:false, tags:['warehouse','logistics'], desc:'Curated pick — logistics operators across Cologne hiring pickers/packers; opens a live filtered search.', link:'https://www.indeed.com/jobs?q=warehouse+picker&l=Cologne%2C+Germany', curated:true}
+];
 
 function inferLevel(title){
   const t = title.toLowerCase();
@@ -229,10 +351,15 @@ async function fetchJobs(){
       remote: !!j.remote, visa: !!j.visa_sponsorship, tags: j.tags||[],
       level: inferLevel(j.title), coord: null,
       desc: (j.description||'').replace(/<[^>]+>/g,'').slice(0,220)+'…',
-      link: j.url
+      link: j.url, curated:false
     }));
+    CURATED_JOBS.forEach(j=>jobs.push({...j, level: inferLevel(j.title)}));
+    jobs.forEach(j=>{ j.coord = cityCoord(j.city); });
     populateSectors();
     populateTagCloud();
+    renderPortals();
+    renderSearchFor();
+    renderSuitable();
     render();
   }catch(e){
     document.getElementById('jobList').innerHTML = '<div class="empty">Could not reach the Arbeitnow API right now. Check your connection and try refreshing.</div>';
@@ -253,6 +380,17 @@ function populateTagCloud(){
   document.getElementById('tagCloud').innerHTML = top.map(([t,c])=>`<span data-t="${t}">${t} · ${c}</span>`).join('');
   document.querySelectorAll('.tagcloud span').forEach(el=>el.addEventListener('click',()=>{document.getElementById('qTitle').value=el.dataset.t;render();}));
 }
+function renderSearchFor(){
+  const counts = {};
+  jobs.forEach(j=>j.tags.forEach(t=>counts[t]=(counts[t]||0)+1));
+  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('searchForList').innerHTML = top.map(([t,c])=>`<div class="searchfor" data-t="${t}"><span>${t}</span><span class="cnt">${c} jobs</span></div>`).join('');
+  document.querySelectorAll('.searchfor').forEach(el=>el.addEventListener('click',()=>{document.getElementById('qTitle').value=el.dataset.t;render();document.querySelector('.jobpanel').scrollIntoView({behavior:'smooth'});}));
+}
+function renderSuitable(){
+  const picks = jobs.filter(j=>!j.curated).slice(0,4);
+  document.getElementById('suitableList').innerHTML = picks.map(j=>`<div class="suitjob"><div class="joblogo">${(j.company||'?').slice(0,2).toUpperCase()}</div><div><b>${j.title.slice(0,40)}${j.title.length>40?'…':''}</b><span>${j.company} · ${j.city}</span></div></div>`).join('');
+}
 
 function haversine(lat1,lon1,lat2,lon2){
   const R=6371, toRad=d=>d*Math.PI/180;
@@ -260,28 +398,6 @@ function haversine(lat1,lon1,lat2,lon2){
   const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
   return R*2*Math.asin(Math.sqrt(a));
 }
-async function geocodeCity(city){
-  if(!city || city==='Not specified') return null;
-  if(geocodeCache.has(city)) return geocodeCache.get(city);
-  try{
-    const q = city.split(',')[0].trim();
-    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q=${encodeURIComponent(q)}`);
-    const d = await r.json();
-    const c = d[0] ? {lat:+d[0].lat, lon:+d[0].lon} : null;
-    geocodeCache.set(city, c);
-    return c;
-  }catch(e){ geocodeCache.set(city, null); return null; }
-}
-async function geocodeAllJobs(){
-  document.getElementById('count').textContent = 'Finding distances to job locations…';
-  const cities = [...new Set(jobs.map(j=>j.city))];
-  for(const c of cities){
-    const coord = await geocodeCity(c);
-    jobs.filter(j=>j.city===c).forEach(j=>j.coord=coord);
-    await new Promise(r=>setTimeout(r,150));
-  }
-}
-
 document.getElementById('locBtn').addEventListener('click', () => {
   if(!navigator.geolocation){ alert('Geolocation is not supported by your browser.'); return; }
   const btn = document.getElementById('locBtn');
@@ -289,13 +405,38 @@ document.getElementById('locBtn').addEventListener('click', () => {
   navigator.geolocation.getCurrentPosition(async pos=>{
     userCoords = {lat:pos.coords.latitude, lon:pos.coords.longitude};
     btn.textContent = '📍 Location set';
-    document.getElementById('fDistance').disabled = false;
-    await geocodeAllJobs();
+    // Reverse-geocode once just to show a human-readable city in the Location field
+    try{
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userCoords.lat}&lon=${userCoords.lon}`);
+      const d = await r.json();
+      const city = d?.address?.city || d?.address?.town || d?.address?.village || d?.address?.county;
+      if(city) document.getElementById('qLoc').value = city;
+    }catch(e){ /* non-critical — distance filtering still works without this */ }
     render();
   }, err=>{
     btn.textContent = '📍 Use my location';
     alert('Could not get your location: '+err.message);
   });
+});
+
+document.getElementById('alertBtn').addEventListener('click', ()=>{
+  const p = document.getElementById('alertPanel');
+  p.style.display = p.style.display==='none' ? 'block' : 'none';
+  renderAlerts();
+});
+function getAlerts(){ try{ return JSON.parse(localStorage.getItem('jid_alerts')||'[]'); }catch(e){ return []; } }
+function renderAlerts(){
+  document.getElementById('alertList').innerHTML = getAlerts().map((a,i)=>`<span>${a.email} — "${a.query||'any'}" <button onclick="removeAlert(${i})">✕</button></span>`).join('') || 'No saved alerts yet.';
+}
+function removeAlert(i){ const a=getAlerts(); a.splice(i,1); localStorage.setItem('jid_alerts', JSON.stringify(a)); renderAlerts(); }
+document.getElementById('alertSave').addEventListener('click', ()=>{
+  const email = document.getElementById('alertEmail').value.trim();
+  if(!email || !email.includes('@')){ alert('Enter a valid email.'); return; }
+  const a = getAlerts();
+  a.push({email, query: document.getElementById('qTitle').value.trim(), loc: document.getElementById('qLoc').value.trim(), saved: Date.now()});
+  localStorage.setItem('jid_alerts', JSON.stringify(a));
+  document.getElementById('alertEmail').value='';
+  renderAlerts();
 });
 
 document.getElementById('moreLink').addEventListener('click', ()=>{
@@ -312,6 +453,7 @@ document.getElementById('moreLink').addEventListener('click', ()=>{
 });
 
 function render(){
+  const refCoords = userCoords || typedLocCoords;
   const titleQ = document.getElementById('qTitle').value.trim().toLowerCase();
   const locQ = document.getElementById('qLoc').value.trim().toLowerCase();
   const t = document.getElementById('fType').value;
@@ -330,7 +472,7 @@ function render(){
     (!remoteOnly || j.remote) &&
     (!titleQ || (j.title+" "+j.company).toLowerCase().includes(titleQ)) &&
     (!locQ || j.city.toLowerCase().includes(locQ)) &&
-    (!dist || !userCoords || (j.coord && haversine(userCoords.lat,userCoords.lon,j.coord.lat,j.coord.lon) <= +dist))
+    (!dist || !refCoords || (j.coord && haversine(refCoords.lat,refCoords.lon,j.coord.lat,j.coord.lon) <= +dist))
   );
   if(sort==='az') list = list.slice().sort((a,b)=>a.company.localeCompare(b.company));
 
@@ -338,7 +480,7 @@ function render(){
   const el = document.getElementById('jobList');
   if(!list.length){ el.innerHTML = '<div class="empty">No roles match those filters right now — try widening them.</div>'; return; }
   el.innerHTML = list.slice(0,60).map((j,i) => {
-    const km = (userCoords && j.coord) ? Math.round(haversine(userCoords.lat,userCoords.lon,j.coord.lat,j.coord.lon))+' km from you' : '';
+    const km = (refCoords && j.coord) ? Math.round(haversine(refCoords.lat,refCoords.lon,j.coord.lat,j.coord.lon))+' km from you' : '';
     return `
     <div class="job ${selectedJob && selectedJob.link===j.link?'tailored':''}">
       <div class="joblogo">${(j.company||'?').slice(0,2).toUpperCase()}</div>
@@ -350,12 +492,13 @@ function render(){
           ${tag(levelLabel[j.level],'level')}
           ${j.remote?tag('Remote-friendly'):''}
           ${j.visa?tag('Visa sponsorship','level'):''}
+          ${j.curated?tag('Curated','curated'):''}
         </div>
         <p class="desc">${j.desc}</p>
         <button class="btn-tailor" onclick="tailorTo(${jobs.indexOf(j)})">Tailor resume to this job →</button>
       </div>
       <div class="jobactions">
-        <a class="btn-apply" target="_blank" rel="noopener" href="${j.link}">Apply now</a>
+        <a class="btn-apply" target="_blank" rel="noopener" href="${j.link}">${j.curated?'See openings':'Apply now'}</a>
         <button class="btn-save" onclick="this.classList.toggle('saved');this.textContent=this.classList.contains('saved')?'★ Saved':'☆ Save'">☆ Save</button>
       </div>
     </div>`;
@@ -363,7 +506,10 @@ function render(){
 }
 ['fType','fLevel','fSector','fDistance','fSort'].forEach(id=>document.getElementById(id).addEventListener('change',render));
 document.getElementById('qTitle').addEventListener('input',render);
-document.getElementById('qLoc').addEventListener('input',render);
+document.getElementById('qLoc').addEventListener('input', e=>{
+  typedLocCoords = cityCoord(e.target.value);
+  render();
+});
 document.getElementById('searchBtn').addEventListener('click',render);
 fetchJobs();
 
@@ -379,14 +525,17 @@ function tailorTo(idx){
 // visible to every visitor). See the comment block at the bottom of this file for a ready-made
 // Vercel/Netlify function you can drop in, then point ASSISTANT_ENDPOINT at it.
 const ASSISTANT_ENDPOINT = "/.netlify/functions/ask";
-async function askBackend(prompt){
+// Sends the PDF itself (base64) as a document block when one is attached, so the assistant
+// reads the real file — layout, formatting, everything — instead of a crude text extraction.
+async function askBackend(contentBlocks){
   if(!ASSISTANT_ENDPOINT) throw new Error("not configured");
-  const r = await fetch(ASSISTANT_ENDPOINT, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt})});
+  const r = await fetch(ASSISTANT_ENDPOINT, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({content: contentBlocks})});
   return (await r.json()).text;
 }
 
 const chat = document.getElementById('chat');
 const resumeBox = document.getElementById('resumeBox');
+let uploadedFile = null; // {name, mediaType, dataB64} for a PDF attached directly, no text extraction
 function addMsg(role, text){
   const d = document.createElement('div');
   d.className = 'msg ' + (role==='user'?'user':'ai');
@@ -403,13 +552,16 @@ async function ask(text){
   const jobCtx = selectedJob
     ? `TARGET JOB — tailor everything to this specific posting, not generic advice:\nTitle: ${selectedJob.title}\nCompany: ${selectedJob.company}\nLocation: ${selectedJob.city}\nType: ${typeLabel[selectedJob.type]||selectedJob.type}\nDescription: ${selectedJob.desc}\n\n`
     : `TARGET JOB: none selected. If the question needs a specific job, ask the user to click "Tailor resume to this job" on a listing first.\n\n`;
+  const promptText = jobCtx + (resume && !uploadedFile ? "RESUME (pasted text):\n"+resume+"\n\n" : "") + "QUESTION: " + text;
+  const blocks = [];
+  if(uploadedFile) blocks.push({type:'document', source:{type:'base64', media_type: uploadedFile.mediaType, data: uploadedFile.dataB64}});
+  blocks.push({type:'text', text: promptText});
   try{
-    const full = jobCtx + (resume ? "RESUME:\n"+resume+"\n\n" : "") + "QUESTION: " + text;
-    let reply = await askBackend(full);
+    let reply = await askBackend(blocks);
     const m = reply.match(/---RESUME START---([\s\S]*?)---RESUME END---([\s\S]*)/);
     if(m){
       resumeBox.value = m[1].trim();
-      reply = "Resume updated ✓ (see the box above). " + m[2].trim();
+      reply = "Resume updated ✓ (see the box above — note: this rewrite is plain text even if you uploaded a PDF, since the assistant can't edit a PDF's layout directly). " + m[2].trim();
     }
     thinking.textContent = reply;
   }catch(e){
@@ -437,39 +589,72 @@ document.querySelectorAll('.quick button').forEach(btn=>{
   });
 });
 
-// File upload → extract text from .txt / .pdf / .docx into the resume box
-if(window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// File upload: .pdf is attached directly (base64) so the assistant reads the real document —
+// no text extraction. .docx is converted to text via mammoth (the API only accepts PDF/image
+// documents natively). .txt is read as plain text. The file is saved in this browser
+// (localStorage) so it's still here next time you open the page.
+function updateFileUI(){
+  const box = document.getElementById('fileStatus');
+  const row = document.getElementById('uploadRow');
+  if(uploadedFile){
+    box.style.display='flex'; row.style.display='none';
+    document.getElementById('fileStatusText').textContent = '📄 '+uploadedFile.name+' attached (saved in this browser)';
+    resumeBox.placeholder = 'PDF attached above — the assistant reads it directly. Paste text here only if you want to add extra notes.';
+  }else{
+    box.style.display='none'; row.style.display='flex';
+  }
+}
+function removeFile(){
+  uploadedFile = null;
+  localStorage.removeItem('jid_resume_file');
+  document.getElementById('resumeFile').value = '';
+  updateFileUI();
+}
+document.getElementById('fileRemove').addEventListener('click', removeFile);
+
 document.getElementById('resumeFile').addEventListener('change', async e=>{
   const file = e.target.files[0];
   if(!file) return;
   const hint = document.getElementById('aiHint');
-  hint.textContent = 'Reading '+file.name+'…';
+  hint.textContent = 'Loading '+file.name+'…';
   try{
     const ext = file.name.split('.').pop().toLowerCase();
-    let text = '';
-    if(ext==='txt'){
-      text = await file.text();
-    }else if(ext==='pdf'){
+    if(ext==='pdf'){
       const buf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({data:buf}).promise;
-      for(let i=1;i<=pdf.numPages;i++){
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        text += content.items.map(it=>it.str).join(' ') + '\n';
-      }
+      const bytes = new Uint8Array(buf);
+      let bin=''; bytes.forEach(b=>bin+=String.fromCharCode(b));
+      const b64 = btoa(bin);
+      uploadedFile = {name:file.name, mediaType:'application/pdf', dataB64:b64};
+      localStorage.setItem('jid_resume_file', JSON.stringify(uploadedFile));
+      resumeBox.value = '';
     }else if(ext==='docx'){
       const buf = await file.arrayBuffer();
       const result = await mammoth.extractRawText({arrayBuffer:buf});
-      text = result.value;
+      resumeBox.value = result.value.trim();
+      localStorage.setItem('jid_resume_text', resumeBox.value);
+    }else if(ext==='txt'){
+      resumeBox.value = (await file.text()).trim();
+      localStorage.setItem('jid_resume_text', resumeBox.value);
     }else{
       throw new Error('Unsupported file type');
     }
-    resumeBox.value = text.trim();
+    updateFileUI();
     hint.textContent = 'Loaded '+file.name+' ✓';
   }catch(err){
-    hint.textContent = "Couldn't read that file — try .txt, .pdf, or .docx, or paste your resume text directly.";
+    hint.textContent = "Couldn't read that file — try .txt, .pdf, or .docx.";
   }
 });
+
+// Restore a previously saved resume (PDF attachment or pasted/extracted text) on page load
+(function restoreResume(){
+  try{
+    const savedFile = localStorage.getItem('jid_resume_file');
+    if(savedFile){ uploadedFile = JSON.parse(savedFile); updateFileUI(); return; }
+    const savedText = localStorage.getItem('jid_resume_text');
+    if(savedText) resumeBox.value = savedText;
+  }catch(e){}
+})();
+resumeBox.addEventListener('input', ()=>{ if(!uploadedFile) localStorage.setItem('jid_resume_text', resumeBox.value); });
 
 /* ── OPTIONAL: minimal Vercel serverless function for the resume assistant ──
 Save as /api/ask.js in a Vercel project, add ANTHROPIC_API_KEY as an environment
@@ -477,7 +662,13 @@ variable in the Vercel dashboard (never in this file), deploy, then set
 ASSISTANT_ENDPOINT above to "/api/ask".
 
 export default async function handler(req, res) {
-  const { prompt } = req.body;
+  const { content } = req.body; // array of {type:'document',...} and {type:'text',...} blocks
+  const system = 'You are a career coach for internationals job-hunting in Germany. Always tailor your ' +
+    'answer to the TARGET JOB block in the prompt when one is present — never give generic advice if a ' +
+    'specific job is given. If a PDF resume is attached, read it directly (layout, formatting, everything) ' +
+    'rather than assuming it was pre-extracted. If asked to rewrite or update the resume, return the full ' +
+    'rewritten resume as plain text wrapped exactly between the markers ---RESUME START--- and ' +
+    '---RESUME END---, followed by a short bullet list of what changed.';
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -487,13 +678,9 @@ export default async function handler(req, res) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1200,
-      messages: [{ role: 'user', content:
-        'You are a career coach for internationals job-hunting in Germany. Always tailor your ' +
-        'answer to the TARGET JOB block in the prompt when one is present — never give generic ' +
-        'advice if a specific job is given. If asked to rewrite or update the resume, return the ' +
-        'full rewritten resume wrapped exactly between the markers ---RESUME START--- and ' +
-        '---RESUME END---, followed by a short bullet list of what changed.\n\n' + prompt }]
+      max_tokens: 1500,
+      system,
+      messages: [{ role: 'user', content }]
     })
   });
   const data = await r.json();
